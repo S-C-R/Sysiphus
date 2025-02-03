@@ -8,13 +8,15 @@
   }
 </style>
 <head>
-  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
 </head>
 <body>
   <div class="container">
 	<h1>Start rolling!</h1>
     <img id="boulder" onclick="move(this)" src="images/boulder.png"></img>
     <input type="button" onkeypress="move(document.getElementById('boulder'))"></input>
+	<input type="checkbox" id="boulderview" name="boulderview" value="true">
+	<label for="boulderview"> Toggle Boulder Vision</label>
     <div>
 	  <div>
 	    <h2 style="position: relative; left: 900px;"><span id="funnybox"></span></h2>
@@ -38,7 +40,8 @@
   const negate = -1;
 
   let funnybox = false;
-
+  let imageviewbox = false;
+  
   function move(image) {
     movement = movement + bonusmovement;
 	rotateAngle = rotateAngle + bonusrotation;
@@ -62,6 +65,7 @@
 		randomtime = randomtime - 1;
 		if (maxdepth < verticalposition) {
 		    maxdepth = verticalposition;
+			// line doesnt work, supposed to place at very bottom of page
 			document.getElementById('depth').setAttribute("style", "transform: translateY(" + maxdepth + "px);");
 		  }
 		document.getElementById('depth').innerHTML = "The boulder is getting unrooly, it has reached a depth of " + maxdepth + "!";
@@ -71,7 +75,9 @@
 	  funnybox = true;
 	  document.getElementById('funnybox').innerHTML = "a nice start to a fun adventure!";
 	}
-	image.scrollIntoView();
+	if (document.getElementById('boulderview').checked) {
+	  image.scrollIntoView();
+	}
   }
   
   function upgrademovement(amount)  {
