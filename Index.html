@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<style>
+  .container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+  }
+</style>
+<body>
+  <div class="container">
+	<h1>Start rolling!</h1>
+    <img id="boulder" onclick="move(this)" src="boulder.png"></img>
+    <input type="button" onkeypress="move(document.getElementById('boulder'))"></input>
+    <div>
+	  <div>
+	    <h2 style="position: relative; left: 900px;"><span id="funnybox"></span></h2>
+      </div>
+	  <div>
+        <h2><span id="distance" style="color:green"></span>
+	    <br><span id="turns" style="color:blue"></span>
+		<br><span id="depth" style="color:yellow"></br></h2>
+	  </div>
+	</div>
+  </div>
+  <script>
+  let rotateAngle = 0;
+  let movement = 0;
+  let bonusmovement = 150;
+  let bonusrotation = 150;
+  let verticalspeed = 45;
+  let verticalposition = -15;
+  let randomtime = 20;
+  let maxdepth = 0;
+  const negate = -1;
+
+  let funnybox = false;
+
+  function move(image) {
+    movement = movement + bonusmovement;
+	rotateAngle = rotateAngle + bonusrotation;
+    if (movement < 10000) {
+      image.setAttribute("style", "transform: translateX(" + movement + "px) rotate(" + rotateAngle + "deg);");
+	} else {
+	  image.setAttribute("style", "transform: translateX(" + movement + "px) translateY(" + verticalposition + "px) rotate(" + rotateAngle + "deg);");
+    }
+	document.getElementById('distance').innerHTML = "You have pushed for " + movement + " pixels!";
+	if (rotateAngle/360 >= 1) {
+      document.getElementById('turns').innerHTML = "The boulder has rotated " + Math.floor(rotateAngle/360) + " times!";
+	  if (movement >= 10000) {
+        if (randomtime <= 0) {
+          randomtime = Math.random() * Math.floor(rotateAngle/360);
+		  verticalspeed = verticalspeed * negate;
+		  if (verticalposition < 0) {
+		    verticalposition = -60;
+		  }
+        }
+		verticalposition = verticalposition + verticalspeed;
+		randomtime = randomtime - 1;
+		if (maxdepth < verticalposition) {
+		    maxdepth = verticalposition;
+			document.getElementById('depth').setAttribute("style", "transform: translateY(" + maxdepth + "px);");
+		  }
+		document.getElementById('depth').innerHTML = "The boulder is getting unrooly, it has reached a depth of " + maxdepth + "!";
+	  }
+    }
+	if (movement >= 900 && funnybox == false) {
+	  funnybox = true;
+	  document.getElementById('funnybox').innerHTML = "a nice start to a fun adventure!";
+	}
+	image.scrollIntoView();
+  }
+  
+  function upgrademovement(amount)  {
+    bonusmovement = bonusmovement + amount;
+	bonusrotation = bonusrotation + amount;
+  }
+  
+  
+  </script>
+</body>
+</html>
