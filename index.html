@@ -14,8 +14,9 @@
   <div class="container">
 	<h1>Start rolling!</h1>
     <img id="boulder" onclick="move(this)" src="images/boulder.png"></img>
-    <input type="checkbox" onkeyup="move(document.getElementById('boulder'))">Toggle Keymash Mode</input>
-	<input type="checkbox" id="boulderview" name="boulderview" value="true">
+    <input type="checkbox" id="keymash" name="keymash">
+	<label for="keymash">Toggle Key Mash</label>
+	<input type="checkbox" id="boulderview" name="boulderview">
 	<label for="boulderview">Toggle Boulder Vision</label>
     <div>
 	  <div>
@@ -41,7 +42,19 @@
 
   let funnybox = false;
   let imageviewbox = false;
+  let manualclicking = true;
   
+  document.addEventListener('DOMContentLoaded', () => {
+    const checkbox = document.getElementById('keymash');
+	document.addEventListener('keyup', (event) => {
+	  if(checkbox.checked) {
+	    move(document.getElementById('boulder'));
+		if (manualclicking) {
+		  manualclicking = false;
+		}
+	  }
+	});
+  });
   function move(image) {
     movement = movement + bonusmovement;
 	rotateAngle = rotateAngle + bonusrotation;
