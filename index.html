@@ -14,9 +14,9 @@
   <div class="container">
 	<h1>Start rolling!</h1>
     <img id="boulder" onclick="move(this)" src="images/boulder.png"></img>
-    <input type="button" onkeypress="move(document.getElementById('boulder'))"></input>
+    <input type="checkbox" onkeyup="move(document.getElementById('boulder'))">Toggle Keymash Mode</input>
 	<input type="checkbox" id="boulderview" name="boulderview" value="true">
-	<label for="boulderview"> Toggle Boulder Vision</label>
+	<label for="boulderview">Toggle Boulder Vision</label>
     <div>
 	  <div>
 	    <h2 style="position: relative; left: 900px;"><span id="funnybox"></span></h2>
@@ -31,8 +31,8 @@
   <script>
   let rotateAngle = 0;
   let movement = 0;
-  let bonusmovement = 150;
-  let bonusrotation = 150;
+  let bonusmovement = 15;
+  let bonusrotation = 15;
   let verticalspeed = 45;
   let verticalposition = -15;
   let randomtime = 20;
@@ -58,7 +58,7 @@
           randomtime = Math.random() * Math.floor(rotateAngle/360);
 		  verticalspeed = verticalspeed * negate;
 		  if (verticalposition < 0) {
-		    verticalposition = -60;
+		    verticalposition = 0;
 		  }
         }
 		verticalposition = verticalposition + verticalspeed;
@@ -78,6 +78,10 @@
 	if (document.getElementById('boulderview').checked) {
 	  image.scrollIntoView();
 	}
+  }
+  
+  function disappearbutton(button) {
+    
   }
   
   function upgrademovement(amount)  {
