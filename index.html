@@ -5,6 +5,7 @@
     position: relative;
     width: 100%;
     height: 100vh;
+	user-select:none;
   }
 </style>
 <head>
@@ -16,15 +17,17 @@
     <img id="boulder" onclick="move(this)" src="images/boulder.png"></img>
     <input type="checkbox" id="keymash" name="keymash">
 	<label for="keymash">Toggle Key Mash</label>
-	<input type="checkbox" id="boulderview" name="boulderview">
-	<label for="boulderview">Toggle Boulder Vision</label>
     <div>
 	  <div>
-	    <h2 style="position: relative; left: 900px;"><span id="funnybox"></span></h2>
+	    <h2 style="position: relative; left: 900px;"><span id="funnybox"></span>
+		<br><input type="checkbox" id="boulderviewbox" name="boulderview" style="visibility:hidden">
+	    <label for="boulderviewbox"><span id="boulderview"></span></label></br></h2>
       </div>
 	  <div>
         <h2><span id="distance" style="color:green"></span>
 	    <br><span id="turns" style="color:blue"></span>
+		<br><input type="button" id="spendrotation" name="spendrotation" onclick="spendrotation()" style="visibility:hidden">
+		<label for="spendrotation"><span id="spendbox"></span></label>
 		<br><span id="depth" style="color:yellow"></br></h2>
 	  </div>
 	</div>
@@ -38,6 +41,9 @@
   let verticalposition = -15;
   let randomtime = 20;
   let maxdepth = 0;
+  let rotationstored = 0;
+  let totalrotations = 0;
+  let rotationprice = 2;
   const negate = -1;
 
   let funnybox = false;
@@ -58,17 +64,21 @@
   function move(image) {
     movement = movement + bonusmovement;
 	rotateAngle = rotateAngle + bonusrotation;
+	if (totalrotations < Math.floor(rotateAngle/360)) {
+	  rotationstored = rotationstored + Math.floor(rotateAngle/360) - totalrotations;
+	}
+	totalrotations = Math.floor(rotateAngle/360);
     if (movement < 10000) {
       image.setAttribute("style", "transform: translateX(" + movement + "px) rotate(" + rotateAngle + "deg);");
 	} else {
 	  image.setAttribute("style", "transform: translateX(" + movement + "px) translateY(" + verticalposition + "px) rotate(" + rotateAngle + "deg);");
     }
 	document.getElementById('distance').innerHTML = "You have pushed for " + movement + " pixels!";
-	if (rotateAngle/360 >= 1) {
-      document.getElementById('turns').innerHTML = "The boulder has rotated " + Math.floor(rotateAngle/360) + " times!";
+	if (totalrotations >= 1) {
+	  document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " rotations stored!";
 	  if (movement >= 10000) {
         if (randomtime <= 0) {
-          randomtime = Math.random() * Math.floor(rotateAngle/360);
+          randomtime = Math.random() * totalrotations;
 		  verticalspeed = verticalspeed * negate;
 		  if (verticalposition < 0) {
 		    verticalposition = 0;
@@ -87,15 +97,26 @@
 	if (movement >= 900 && funnybox == false) {
 	  funnybox = true;
 	  document.getElementById('funnybox').innerHTML = "a nice start to a fun adventure!";
+	  document.getElementById('boulderview').innerHTML = "Toggle Boulder View";
+	  document.getElementById('boulderviewbox').style.visibility = 'visible';
+	  document.getElementById('spendbox').innerHTML = " +5 movement | " + rotationprice + " rotations";
+	  document.getElementById('spendrotation').style.visibility = 'visible';
 	}
-	if (document.getElementById('boulderview').checked) {
+	if (document.getElementById('boulderviewbox').checked) {
 	  image.scrollIntoView();
 	}
   }
   
-  function disappearbutton(button) {
-    
+  function spendrotation() {
+    if (rotationstored >= rotationprice) {
+	  rotationstored = rotationstored - rotationprice;
+      upgrademovement(5);
+	  rotationprice = rotationprice + Math.ceil(rotationprice / 2);
+	  document.getElementById('spendbox').innerHTML = " +5 movement | " + rotationprice + " rotations";
+	  document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " rotations stored!";
+    }
   }
+  
   
   function upgrademovement(amount)  {
     bonusmovement = bonusmovement + amount;
