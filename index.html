@@ -17,6 +17,8 @@
     <img id="boulder" onclick="move(this)" src="images/boulder.png"></img>
     <input type="checkbox" id="keymash" name="keymash">
 	<label for="keymash">Toggle Key Mash</label>
+	<input type="checkbox" id="autoroll" name="autoroll" onclick="autoroll(this)">
+	<label for="autoroll">Toggle Autoroll</label>
     <div>
 	  <div>
 	    <h2 style="position: relative; left: 900px;"><span id="funnybox"></span>
@@ -44,11 +46,16 @@
   let rotationstored = 0;
   let totalrotations = 0;
   let rotationprice = 2;
+  let prestigelevel = 0;
+  let rolldelay = 1000;
   const negate = -1;
 
   let funnybox = false;
   let imageviewbox = false;
   let manualclicking = true;
+  
+  
+  //Keymash mode
   
   document.addEventListener('DOMContentLoaded', () => {
     const checkbox = document.getElementById('keymash');
@@ -61,6 +68,17 @@
 	  }
 	});
   });
+  
+  //Automove
+  function autoroll(checkbox) {
+    if (checkbox.checked) {
+      rollinterval = setInterval(() => move(document.getElementById('boulder')), rolldelay);
+    } else {
+      clearInterval(rollinterval);
+    }
+  }
+  
+  //Movement function
   function move(image) {
     movement = movement + bonusmovement;
 	rotateAngle = rotateAngle + bonusrotation;
@@ -123,6 +141,20 @@
 	bonusrotation = bonusrotation + amount;
   }
   
+  function prestige() {
+    prestigelevel = Math.log(movement);
+    rotateAngle = 0;
+    movement = 0;
+    bonusmovement = 15;
+    bonusrotation = 15;
+    verticalspeed = 45;
+    verticalposition = -15;
+    randomtime = 20;
+    maxdepth = 0;
+    rotationstored = 0;
+    totalrotations = 0;
+    rotationprice = 2;
+  }
   
   </script>
 </body>
