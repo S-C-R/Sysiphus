@@ -28,17 +28,21 @@
 	  <div>
         <h2><span id="distance" style="color:green"></span>
 	    <br><span id="turns" style="color:blue"></span>
+		<br><span id="kineticenergy" style="color:violet"></span>
 		<br><input type="button" id="spendrotation" name="spendrotation" onclick="spendrotation()" style="visibility:hidden">
 		<label for="spendrotation"><span id="spendbox"></span></label>
 		<br><input type="button" id="spenddepthtime" name="spenddepthtime" onclick="spenddepthtime()" style="visibility:hidden">
 		<label for="spenddepthtime"><span id="spendboxdepthtime"></span></label>
-		<br><span id="depth" style="color:yellow"></br></h2>
+		<br><input type="button" id="spendpricereduction" name="spendpricereduction" onclick="spendpricereduction()" style="visibility:hidden">
+		<label for="spendpricereduction"><span id="spendboxpricereduction"></span></label>
+		<br><span id="depth" style="color:black"></span></h2>
 	  </div>
 	</div>
   </div>
   <script>
   let rotateAngle = 0;
   let movement = 0;
+  let kineticenergy = 0;
   let bonusmovement = 15;
   let bonusrotation = 15;
   let verticalspeed = 45;
@@ -48,17 +52,22 @@
   let rotationstored = 0;
   let totalrotations = 0;
   let rotationprice = 2;
+  let pricereductionprice = 10000;
+  let reductioncounter = 1;
   let depthtimeprice = 10;
   let prestigelevel = 0;
   let rolldelay = 1000;
   let trailcounter = 5;
   let timereduction = 1;
+  let pricereduction = 1;
+  
   const negate = -1;
 
   let funnybox = false;
   let imageviewbox = false;
   let manualclicking = true;
   let depthtimebox = false;
+  let pricereductionbox = false;
   
   //Keymash mode
   
@@ -98,7 +107,7 @@
     }
 	document.getElementById('distance').innerHTML = "You have pushed for " + movement + " pixels!";
 	if (totalrotations >= 1) {
-	  document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " rotations stored!";
+	  document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
 	  if (movement >= 10000) {
         if (randomtime <= 0) {
           randomtime = Math.random() * totalrotations;
@@ -113,6 +122,9 @@
 		  }
         }
 		verticalposition = verticalposition + verticalspeed;
+		if (verticalspeed >= 0) {
+		  kineticenergy = kineticenergy + verticalspeed;
+		}
 		randomtime = randomtime - 1;
 		if (maxdepth < verticalposition) {
 		    maxdepth = verticalposition;
@@ -120,6 +132,9 @@
 			document.getElementById('depth').setAttribute("style", "transform: translateY(" + maxdepth + "px);");
 		  }
 		document.getElementById('depth').innerHTML = "The boulder is getting unrooly, it has reached a depth of " + maxdepth + "!";
+		if (maxdepth >= 2000) {
+		  document.getElementById('kineticenergy').innerHTML = "The boulder has " + kineticenergy + " Kinetics stored";
+		}
 	  }
     }
 	if (movement >= 900 && funnybox == false) {
@@ -127,13 +142,18 @@
 	  document.getElementById('funnybox').innerHTML = "a nice start to a fun adventure!";
 	  document.getElementById('boulderview').innerHTML = "Toggle Boulder View";
 	  document.getElementById('boulderviewbox').style.visibility = 'visible';
-	  document.getElementById('spendbox').innerHTML = " +5 movement | " + rotationprice + " rotations";
+	  document.getElementById('spendbox').innerHTML = " +5 movement | " + rotationprice + " Rotations";
 	  document.getElementById('spendrotation').style.visibility = 'visible';
 	}
 	if (maxdepth >= 2000 && depthtimebox == false) {
-	  document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + depthtimeprice + " rotations";
+	  document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + depthtimeprice + " Rotations";
 	  document.getElementById('spenddepthtime').style.visibility = 'visible';
 	  depthtimebox = true;
+	}
+	if (maxdepth >= 5000 && pricereductionbox == false) {
+	  document.getElementById('spendboxpricereduction').innerHTML = Math.floor((1 - pricereduction) * 100) + "\% Rotation price reduction | " + pricereductionprice + " Kinetics";
+	  document.getElementById('spendpricereduction').style.visibility = 'visible';
+	  pricereductionbox = true;
 	}
 	if (movement >= 2000) {
 	  trailcounter = trailcounter - 1;
@@ -148,26 +168,39 @@
   }
   
   function spendrotation() {
-    if (rotationstored >= rotationprice) {
-	  rotationstored = rotationstored - rotationprice;
+    if (rotationstored >= Math.ceil(rotationprice * pricereduction)) {
+	  rotationstored = rotationstored - Math.ceil(rotationprice * pricereduction);
       upgrademovement(5);
 	  rotationprice = rotationprice + Math.ceil(rotationprice / 2);
-	  document.getElementById('spendbox').innerHTML = " +5 movement | " + rotationprice + " rotations";
-	  document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " rotations stored!";
+	  document.getElementById('spendbox').innerHTML = " +5 movement | " + Math.ceil(rotationprice * pricereduction) + " Rotations";
+	  document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
     }
   }
   
   function spenddepthtime() {
     if (timereduction > 0) {
-      if (rotationstored >= depthtimeprice) {
-	    rotationstored = rotationstored - depthtimeprice;
-        timereduction = timereduction * 0.9;
+      if (rotationstored >= Math.ceil(depthtimeprice * pricereduction)) {
+	    rotationstored = rotationstored - Math.ceil(depthtimeprice * pricereduction);
+        timereduction = timereduction - 0.1;
 	    depthtimeprice = depthtimeprice * depthtimeprice;
-	    document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + depthtimeprice + " rotations";
-	    document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " rotations stored!";
+	    document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
+	    document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
      }
 	}
   }
+  
+  function spendpricereduction() {
+   if (kineticenergy >= pricereductionprice * reductioncounter) {
+     pricereduction = pricereduction * 0.98;
+     kineticenergy = kineticenergy - (pricereductionprice * reductioncounter);
+	 reductioncounter = reductioncounter + 1;
+     document.getElementById('spendboxpricereduction').innerHTML = Math.floor((1 - pricereduction) * 100) + "\% Rotation price reduction | " + (pricereductionprice * reductioncounter) + " Kinetics";
+	 document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
+	 document.getElementById('spendbox').innerHTML = " +5 movement | " + Math.ceil(rotationprice * pricereduction) + " Rotations";
+	 document.getElementById('kineticenergy').innerHTML = "The boulder has " + kineticenergy + " Kinetics stored";
+    }
+  }
+  //Note, add perk that allows for pricereduction to work on kineticenergy
   
   function createtrail(space,image) {
     trail = document.createElement('img');
