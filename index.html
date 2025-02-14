@@ -30,6 +30,8 @@
 	    <br><span id="turns" style="color:blue"></span>
 		<br><input type="button" id="spendrotation" name="spendrotation" onclick="spendrotation()" style="visibility:hidden">
 		<label for="spendrotation"><span id="spendbox"></span></label>
+		<br><input type="button" id="spenddepthtime" name="spenddepthtime" onclick="spenddepthtime()" style="visibility:hidden">
+		<label for="spenddepthtime"><span id="spendboxdepthtime"></span></label>
 		<br><span id="depth" style="color:yellow"></br></h2>
 	  </div>
 	</div>
@@ -46,14 +48,17 @@
   let rotationstored = 0;
   let totalrotations = 0;
   let rotationprice = 2;
+  let depthtimeprice = 10;
   let prestigelevel = 0;
   let rolldelay = 1000;
+  let trailcounter = 5;
+  let timereduction = 1;
   const negate = -1;
 
   let funnybox = false;
   let imageviewbox = false;
   let manualclicking = true;
-  
+  let depthtimebox = false;
   
   //Keymash mode
   
@@ -101,6 +106,11 @@
 		  if (verticalposition < 0) {
 		    verticalposition = 0;
 		  }
+		  if (verticalspeed < 0) {
+		    randomtime = randomtime * timereduction;
+		  } else {
+		    randomtime = randomtime * (2 - timereduction); 
+		  }
         }
 		verticalposition = verticalposition + verticalspeed;
 		randomtime = randomtime - 1;
@@ -120,6 +130,18 @@
 	  document.getElementById('spendbox').innerHTML = " +5 movement | " + rotationprice + " rotations";
 	  document.getElementById('spendrotation').style.visibility = 'visible';
 	}
+	if (maxdepth >= 2000 && depthtimebox == false) {
+	  document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + depthtimeprice + " rotations";
+	  document.getElementById('spenddepthtime').style.visibility = 'visible';
+	  depthtimebox = true;
+	}
+	if (movement >= 2000) {
+	  trailcounter = trailcounter - 1;
+	  if (trailcounter <= 0) {
+	    trailcounter = 20;
+	    createtrail(document.getElementById('boulder'),"images/flower1.png");
+	  }
+	}
 	if (document.getElementById('boulderviewbox').checked) {
 	  image.scrollIntoView();
 	}
@@ -135,6 +157,24 @@
     }
   }
   
+  function spenddepthtime() {
+    if (timereduction > 0) {
+      if (rotationstored >= depthtimeprice) {
+	    rotationstored = rotationstored - depthtimeprice;
+        timereduction = timereduction * 0.9;
+	    depthtimeprice = depthtimeprice * depthtimeprice;
+	    document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + depthtimeprice + " rotations";
+	    document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " rotations stored!";
+     }
+	}
+  }
+  
+  function createtrail(space,image) {
+    trail = document.createElement('img');
+	trail.src = image;
+	trail.style.transform = window.getComputedStyle(space).transform;
+	document.body.appendChild(trail);
+  }
   
   function upgrademovement(amount)  {
     bonusmovement = bonusmovement + amount;
@@ -142,11 +182,14 @@
   }
   
   function prestige() {
-    prestigelevel = Math.log(movement);
+	prestigecurrent = Math.log(movement) + Math.log(maxdepth);
+	if (prestigelevel < prestigecurrent) {
+	  prestigelevel = prestigecurrent;
+	}
     rotateAngle = 0;
     movement = 0;
-    bonusmovement = 15;
-    bonusrotation = 15;
+    bonusmovement = 15 + prestigelevel * (prestigelevel/2);
+    bonusrotation = 15 + prestigelevel * (prestigelevel/2);
     verticalspeed = 45;
     verticalposition = -15;
     randomtime = 20;
