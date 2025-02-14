@@ -7,35 +7,63 @@
     height: 100vh;
 	user-select:none;
   }
+  #viewdistance {
+    position:absolute;
+	color:green;
+  }
+  #viewdepth {
+    position:absolute;
+  }
+  #viewrotation {
+    position:absolute;
+	color:blue;
+  }
+  #viewkinetic {
+    position:absolute;
+	color:violet;
+  }
 </style>
 <head>
   <link rel="icon" type="image/x-icon" href="images/favicon.ico">
 </head>
 <body>
   <div class="container">
-	<h1>Start rolling!</h1>
-    <img id="boulder" onclick="move(this)" src="images/boulder.png"></img>
-    <input type="checkbox" id="keymash" name="keymash">
+	<h1 id="start">Start rolling!</h1>
+	<div>
+	  <div>
+	    <div>
+	      <h2><span id="viewdistance" style="visibility:hidden;"></span>
+		  <br><span id="viewdepth" style="visibility:hidden;"></span>
+		  <br><span id="viewrotation" style="visibility:hidden;"></span>
+		  <br><span id="viewkinetic" style="visibility:hidden;"></span>
+		</div>
+        <div>
+		  <br><input type="button" id="cancelview" name="cancelview" onclick="cancelview()" style="visibility:hidden;"</h2>
+	    </div>
+	  </div>
+      <img id="boulder" onclick="move(this)" src="images/boulder.png"></img>
+    </div>
+	<input type="checkbox" id="keymash" name="keymash">
 	<label for="keymash">Toggle Key Mash</label>
 	<input type="checkbox" id="autoroll" name="autoroll" onclick="autoroll(this)">
 	<label for="autoroll">Toggle Autoroll</label>
     <div>
 	  <div>
 	    <h2 style="position: relative; left: 900px;"><span id="funnybox"></span>
-		<br><input type="checkbox" id="boulderviewbox" name="boulderview" style="visibility:hidden">
+		<br><input type="checkbox" id="boulderviewbox" name="boulderview" style="visibility:hidden;">
 	    <label for="boulderviewbox"><span id="boulderview"></span></label></br></h2>
       </div>
 	  <div>
-        <h2><span id="distance" style="color:green"></span>
-	    <br><span id="turns" style="color:blue"></span>
-		<br><span id="kineticenergy" style="color:violet"></span>
-		<br><input type="button" id="spendrotation" name="spendrotation" onclick="spendrotation()" style="visibility:hidden">
+        <h2><span id="distance" style="color:green;"></span>
+	    <br><span id="turns" style="color:blue;"></span>
+		<br><span id="kineticenergy" style="color:violet;"></span>
+		<br><input type="button" id="spendrotation" name="spendrotation" onclick="spendrotation()" style="visibility:hidden;">
 		<label for="spendrotation"><span id="spendbox"></span></label>
-		<br><input type="button" id="spenddepthtime" name="spenddepthtime" onclick="spenddepthtime()" style="visibility:hidden">
+		<br><input type="button" id="spenddepthtime" name="spenddepthtime" onclick="spenddepthtime()" style="visibility:hidden;">
 		<label for="spenddepthtime"><span id="spendboxdepthtime"></span></label>
-		<br><input type="button" id="spendpricereduction" name="spendpricereduction" onclick="spendpricereduction()" style="visibility:hidden">
+		<br><input type="button" id="spendpricereduction" name="spendpricereduction" onclick="spendpricereduction()" style="visibility:hidden;">
 		<label for="spendpricereduction"><span id="spendboxpricereduction"></span></label>
-		<br><span id="depth" style="color:black"></span></h2>
+		<br><span id="depth" style="color:black;"></span></h2>
 	  </div>
 	</div>
   </div>
@@ -68,6 +96,7 @@
   let manualclicking = true;
   let depthtimebox = false;
   let pricereductionbox = false;
+  let sidecounters = false;
   
   //Keymash mode
   
@@ -104,7 +133,24 @@
       image.setAttribute("style", "transform: translateX(" + movement + "px) rotate(" + rotateAngle + "deg);");
 	} else {
 	  image.setAttribute("style", "transform: translateX(" + movement + "px) translateY(" + verticalposition + "px) rotate(" + rotateAngle + "deg);");
+	  document.getElementById('viewdistance').setAttribute("style", "transform: translateX(" + (movement - 80) + "px) translateY(" + (verticalposition + 100) + "px);");
+	  document.getElementById('viewrotation').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 125) + "px);");
+	  document.getElementById('viewdepth').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 175) + "px);");
+	  document.getElementById('viewkinetic').setAttribute("style", "transform: translateX(" + (movement - 80) + "px) translateY(" + (verticalposition + 200) + "px);");
+	  document.getElementById('cancelview').setAttribute("style", "transform: translateX(" + (movement - 300) + "px) translateY(" + (verticalposition + 150) + "px);");
+	  if (sidecounters == false) {
+	    document.getElementById('viewdistance').style.visibility = 'visible';
+		document.getElementById('viewdepth').style.visibility = 'visible';
+		document.getElementById('viewrotation').style.visibility = 'visible';
+		document.getElementById('viewkinetic').style.visibility = 'visible';
+		document.getElementById('cancelview').style.visibility = 'visible';
+	    sidecounters = true;
+	  }
     }
+	document.getElementById('viewdistance').innerHTML = movement + "px";
+	document.getElementById('viewdepth').innerHTML = verticalposition + "px";
+	document.getElementById('viewrotation').innerHTML = rotationstored + "R";
+	document.getElementById('viewkinetic').innerHTML = kineticenergy + "K";
 	document.getElementById('distance').innerHTML = "You have pushed for " + movement + " pixels!";
 	if (totalrotations >= 1) {
 	  document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
@@ -174,6 +220,7 @@
 	  rotationprice = rotationprice + Math.ceil(rotationprice / 2);
 	  document.getElementById('spendbox').innerHTML = " +5 movement | " + Math.ceil(rotationprice * pricereduction) + " Rotations";
 	  document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
+	  document.getElementById('viewrotation').innerHTML = rotationstored + "R";
     }
   }
   
@@ -182,9 +229,10 @@
       if (rotationstored >= Math.ceil(depthtimeprice * pricereduction)) {
 	    rotationstored = rotationstored - Math.ceil(depthtimeprice * pricereduction);
         timereduction = timereduction - 0.1;
-	    depthtimeprice = depthtimeprice * depthtimeprice;
+	    depthtimeprice = depthtimeprice * 10;
 	    document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
 	    document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
+		document.getElementById('viewrotation').innerHTML = rotationstored + "R";
      }
 	}
   }
@@ -198,15 +246,21 @@
 	 document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
 	 document.getElementById('spendbox').innerHTML = " +5 movement | " + Math.ceil(rotationprice * pricereduction) + " Rotations";
 	 document.getElementById('kineticenergy').innerHTML = "The boulder has " + kineticenergy + " Kinetics stored";
+	 document.getElementById('viewkinetic').innerHTML = kineticenergy + "K";
     }
   }
   //Note, add perk that allows for pricereduction to work on kineticenergy
-  
+  //convert potentials into ckinetics
   function createtrail(space,image) {
     trail = document.createElement('img');
 	trail.src = image;
 	trail.style.transform = window.getComputedStyle(space).transform;
 	document.body.appendChild(trail);
+  }
+  
+  function cancelview() {
+    document.getElementById('boulderviewbox').checked = false;
+	document.getElementById('start').scrollIntoView();
   }
   
   function upgrademovement(amount)  {
