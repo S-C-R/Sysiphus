@@ -22,6 +22,9 @@
     position:absolute;
 	color:violet;
   }
+  #cancelview {
+    position:absolute;
+  }
 </style>
 <head>
   <link rel="icon" type="image/x-icon" href="images/favicon.ico">
@@ -35,10 +38,11 @@
 	      <h2><span id="viewdistance" style="visibility:hidden;"></span>
 		  <br><span id="viewdepth" style="visibility:hidden;"></span>
 		  <br><span id="viewrotation" style="visibility:hidden;"></span>
-		  <br><span id="viewkinetic" style="visibility:hidden;"></span>
+		  <br><span id="viewkinetic" style="visibility:hidden;"></span></h2>
 		</div>
         <div>
-		  <br><input type="button" id="cancelview" name="cancelview" onclick="cancelview()" style="visibility:hidden;"</h2>
+		  <input type="button" id="cancelviewbox" name="cancelviewbox" onclick="cancelview()" style="visibility:hidden;"</h2>
+		  <h2><label for="cancelviewbox"><span id="cancelview"></span></label></h2>
 	    </div>
 	  </div>
       <img id="boulder" onclick="move(this)" src="images/boulder.png"></img>
@@ -97,6 +101,9 @@
   let depthtimebox = false;
   let pricereductionbox = false;
   let sidecounters = false;
+  let newthingbool = false;
+  let depthbool = false;
+  let depthbool2 = false;
   
   //Keymash mode
   
@@ -133,25 +140,27 @@
       image.setAttribute("style", "transform: translateX(" + movement + "px) rotate(" + rotateAngle + "deg);");
 	} else {
 	  image.setAttribute("style", "transform: translateX(" + movement + "px) translateY(" + verticalposition + "px) rotate(" + rotateAngle + "deg);");
-	  document.getElementById('viewdistance').setAttribute("style", "transform: translateX(" + (movement - 80) + "px) translateY(" + (verticalposition + 100) + "px);");
-	  document.getElementById('viewrotation').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 125) + "px);");
 	  document.getElementById('viewdepth').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 175) + "px);");
 	  document.getElementById('viewkinetic').setAttribute("style", "transform: translateX(" + (movement - 80) + "px) translateY(" + (verticalposition + 200) + "px);");
-	  document.getElementById('cancelview').setAttribute("style", "transform: translateX(" + (movement - 300) + "px) translateY(" + (verticalposition + 150) + "px);");
 	  if (sidecounters == false) {
-	    document.getElementById('viewdistance').style.visibility = 'visible';
 		document.getElementById('viewdepth').style.visibility = 'visible';
-		document.getElementById('viewrotation').style.visibility = 'visible';
 		document.getElementById('viewkinetic').style.visibility = 'visible';
-		document.getElementById('cancelview').style.visibility = 'visible';
 	    sidecounters = true;
+		specificobject("images/wall.png",1000000,0,800,500000);
 	  }
     }
-	document.getElementById('viewdistance').innerHTML = movement + "px";
-	document.getElementById('viewdepth').innerHTML = verticalposition + "px";
-	document.getElementById('viewrotation').innerHTML = rotationstored + "R";
-	document.getElementById('viewkinetic').innerHTML = kineticenergy + "K";
+	if (funnybox == true) {
+	  document.getElementById('cancelviewbox').setAttribute("style", "transform: translateX(" + (movement - 350) + "px) translateY(" + (verticalposition + 150) + "px);");
+	  document.getElementById('cancelview').setAttribute("style", "transform: translateX(" + (movement - 300) + "px) translateY(" + (verticalposition + 150) + "px);");
+	  document.getElementById('viewdistance').setAttribute("style", "transform: translateX(" + (movement - 80) + "px) translateY(" + (verticalposition + 100) + "px);");
+	  document.getElementById('viewrotation').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 125) + "px);");
+	  document.getElementById('viewdistance').innerHTML = movement + "px";
+	  document.getElementById('viewdepth').innerHTML = verticalposition + "px";
+	  document.getElementById('viewrotation').innerHTML = rotationstored + "R";
+	  document.getElementById('viewkinetic').innerHTML = kineticenergy + "K";
+	}
 	document.getElementById('distance').innerHTML = "You have pushed for " + movement + " pixels!";
+	
 	if (totalrotations >= 1) {
 	  document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
 	  if (movement >= 10000) {
@@ -174,12 +183,18 @@
 		randomtime = randomtime - 1;
 		if (maxdepth < verticalposition) {
 		    maxdepth = verticalposition;
-			// line doesnt work, supposed to place at very bottom of page
-			document.getElementById('depth').setAttribute("style", "transform: translateY(" + maxdepth + "px);");
 		  }
 		document.getElementById('depth').innerHTML = "The boulder is getting unrooly, it has reached a depth of " + maxdepth + "!";
+		if (depthbool == false) {
+		  newthing();
+		  depthbool = true;
+		}
 		if (maxdepth >= 2000) {
 		  document.getElementById('kineticenergy').innerHTML = "The boulder has " + kineticenergy + " Kinetics stored";
+		  if (depthbool2 == false) {
+		    newthing();
+		    depthbool = true;
+		  }
 		}
 	  }
     }
@@ -190,16 +205,23 @@
 	  document.getElementById('boulderviewbox').style.visibility = 'visible';
 	  document.getElementById('spendbox').innerHTML = " +5 movement | " + rotationprice + " Rotations";
 	  document.getElementById('spendrotation').style.visibility = 'visible';
+	  document.getElementById('cancelview').style.visibility = 'visible';
+	  document.getElementById('cancelviewbox').style.visibility = 'visible';
+	  document.getElementById('viewrotation').style.visibility = 'visible';
+	  document.getElementById('viewdistance').style.visibility = 'visible';
+	  document.getElementById('cancelview').innerHTML = " Return";
 	}
 	if (maxdepth >= 2000 && depthtimebox == false) {
 	  document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + depthtimeprice + " Rotations";
 	  document.getElementById('spenddepthtime').style.visibility = 'visible';
 	  depthtimebox = true;
+	  newthing();
 	}
 	if (maxdepth >= 5000 && pricereductionbox == false) {
 	  document.getElementById('spendboxpricereduction').innerHTML = Math.floor((1 - pricereduction) * 100) + "\% Rotation price reduction | " + pricereductionprice + " Kinetics";
 	  document.getElementById('spendpricereduction').style.visibility = 'visible';
 	  pricereductionbox = true;
+	  newthing();
 	}
 	if (movement >= 2000) {
 	  trailcounter = trailcounter - 1;
@@ -230,7 +252,7 @@
 	    rotationstored = rotationstored - Math.ceil(depthtimeprice * pricereduction);
         timereduction = timereduction - 0.1;
 	    depthtimeprice = depthtimeprice * 10;
-	    document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
+	    document.getElementById('spendboxdepthtime').innerHTML = Math.floor(timereduction * 100) + "\% Upward travel time, " + Math.floor((2 - timereduction) * 100) + "\% Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
 	    document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
 		document.getElementById('viewrotation').innerHTML = rotationstored + "R";
      }
@@ -243,7 +265,7 @@
      kineticenergy = kineticenergy - (pricereductionprice * reductioncounter);
 	 reductioncounter = reductioncounter + 1;
      document.getElementById('spendboxpricereduction').innerHTML = Math.floor((1 - pricereduction) * 100) + "\% Rotation price reduction | " + (pricereductionprice * reductioncounter) + " Kinetics";
-	 document.getElementById('spendboxdepthtime').innerHTML = timereduction + "x Upward travel time, " + (2 - timereduction) + "x Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
+	 document.getElementById('spendboxdepthtime').innerHTML = Math.floor(timereduction * 100) + "\% Upward travel time, " + Math.floor((2 - timereduction) * 100) + "\% Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
 	 document.getElementById('spendbox').innerHTML = " +5 movement | " + Math.ceil(rotationprice * pricereduction) + " Rotations";
 	 document.getElementById('kineticenergy').innerHTML = "The boulder has " + kineticenergy + " Kinetics stored";
 	 document.getElementById('viewkinetic').innerHTML = kineticenergy + "K";
@@ -258,9 +280,25 @@
 	document.body.appendChild(trail);
   }
   
+  function specificobject(image,xpixel,ypixel,width,length) {
+    object = document.createElement('img');
+	object.scr = image;
+	object.style.left = xpixel + "px";
+	object.style.top = xpixel + "px";
+	object.style.width = width;
+	object.style.length = length;
+  }
+  
+  function newthing() {
+    newthingbool = true;
+	document.getElementById('cancelview').innerHTML = " *NEW*";
+  }
+  
   function cancelview() {
     document.getElementById('boulderviewbox').checked = false;
 	document.getElementById('start').scrollIntoView();
+	document.getElementById('cancelview').innerHTML = " Return";
+	newthingbool = false;
   }
   
   function upgrademovement(amount)  {
