@@ -89,7 +89,7 @@
   let depthtimeprice = 10;
   let prestigelevel = 0;
   let rolldelay = 1000;
-  let trailcounter = 5;
+  let trailcounter = 50;
   let timereduction = 1;
   let pricereduction = 1;
   
@@ -140,20 +140,20 @@
       image.setAttribute("style", "transform: translateX(" + movement + "px) rotate(" + rotateAngle + "deg);");
 	} else {
 	  image.setAttribute("style", "transform: translateX(" + movement + "px) translateY(" + verticalposition + "px) rotate(" + rotateAngle + "deg);");
-	  document.getElementById('viewdepth').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 175) + "px);");
+	  document.getElementById('viewdepth').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 200) + "px);");
 	  document.getElementById('viewkinetic').setAttribute("style", "transform: translateX(" + (movement - 80) + "px) translateY(" + (verticalposition + 200) + "px);");
 	  if (sidecounters == false) {
 		document.getElementById('viewdepth').style.visibility = 'visible';
 		document.getElementById('viewkinetic').style.visibility = 'visible';
 	    sidecounters = true;
-		specificobject("images/wall.png",1000000,0,800,500000);
+		specificobject("images/wall.png",1000000,0,800,500000); //the wall
 	  }
     }
 	if (funnybox == true) {
-	  document.getElementById('cancelviewbox').setAttribute("style", "transform: translateX(" + (movement - 350) + "px) translateY(" + (verticalposition + 150) + "px);");
-	  document.getElementById('cancelview').setAttribute("style", "transform: translateX(" + (movement - 300) + "px) translateY(" + (verticalposition + 150) + "px);");
-	  document.getElementById('viewdistance').setAttribute("style", "transform: translateX(" + (movement - 80) + "px) translateY(" + (verticalposition + 100) + "px);");
-	  document.getElementById('viewrotation').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 125) + "px);");
+	  document.getElementById('cancelviewbox').setAttribute("style", "transform: translateX(" + (movement - 350) + "px) translateY(" + (verticalposition + 200) + "px);");
+	  document.getElementById('cancelview').setAttribute("style", "transform: translateX(" + (movement - 300) + "px) translateY(" + (verticalposition + 200) + "px);");
+	  document.getElementById('viewdistance').setAttribute("style", "transform: translateX(" + (movement - 80) + "px) translateY(" + (verticalposition + 200) + "px);");
+	  document.getElementById('viewrotation').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 200) + "px);");
 	  document.getElementById('viewdistance').innerHTML = movement + "px";
 	  document.getElementById('viewdepth').innerHTML = verticalposition + "px";
 	  document.getElementById('viewrotation').innerHTML = rotationstored + "R";
@@ -226,8 +226,27 @@
 	if (movement >= 2000) {
 	  trailcounter = trailcounter - 1;
 	  if (trailcounter <= 0) {
-	    trailcounter = 20;
-	    createtrail(document.getElementById('boulder'),"images/flower1.png");
+	    if (movement >= 10000) {
+		  trailcounter = 20;
+	    }
+		else {
+		  trailcounter = 50;
+		}
+		randomPicture = Math.floor((Math.random()*100000) % 3);
+		if (randomPicture == 0) {
+		  createtrail(document.getElementById('boulder'),"images/flower1.png");
+		} 
+		else if (randomPicture == 1) {
+		  if (Math.random() <= 0.9) {
+		    createtrail(document.getElementById('boulder'),"images/flower2.png");
+		  }
+		  else {
+		    createtrail(document.getElementById('boulder'),"images/rabbit.png");
+		  }
+		} 
+		else if (randomPicture == 2) { 
+		  createtrail(document.getElementById('boulder'),"images/flower3.png");
+		}
 	  }
 	}
 	if (document.getElementById('boulderviewbox').checked) {
@@ -276,7 +295,7 @@
   function createtrail(space,image) {
     trail = document.createElement('img');
 	trail.src = image;
-	trail.style.transform = window.getComputedStyle(space).transform;
+	trail.style.transform = `translate(${movement}px, ${verticalposition}px)`;
 	document.body.appendChild(trail);
   }
   
@@ -289,9 +308,9 @@
 	object.style.length = length;
   }
   
-  function newthing() {
+  function newthing() { //make it so that the NEW text only shows if the player has boulder view enabled
     newthingbool = true;
-	document.getElementById('cancelview').innerHTML = " *NEW*";
+    document.getElementById('cancelview').innerHTML = " *NEW*"; 
   }
   
   function cancelview() {
