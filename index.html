@@ -67,7 +67,10 @@
 		<label for="spenddepthtime"><span id="spendboxdepthtime"></span></label>
 		<br><input type="button" id="spendpricereduction" name="spendpricereduction" onclick="spendpricereduction()" style="visibility:hidden;">
 		<label for="spendpricereduction"><span id="spendboxpricereduction"></span></label>
-		<br><span id="depth" style="color:black;"></span></h2>
+		<br><input type="button" id="spendrabbitchance" name="spendrabbitchance" onclick="spendrabbitchance()" style="visibility:hidden;">
+		<label for="spendrabbitchance"><span id="spendboxrabbitchance"></span></label>
+		<br><span id="depth" style="color:black;">
+		</span></h2>
 	  </div>
 	</div>
   </div>
@@ -87,11 +90,17 @@
   let pricereductionprice = 10000;
   let reductioncounter = 1;
   let depthtimeprice = 10;
+  let rabbitchanceprice = 300;
+  let rabbitchance = 0.9;
   let prestigelevel = 0;
-  let rolldelay = 1000;
+  let rolldelay = 1000; //upgrade to reduce time
   let trailcounter = 50;
   let timereduction = 1;
   let pricereduction = 1;
+  let rabbitsclicked = 0;
+  let autocounter = 1;
+  let rollIntervals = [];
+
   
   const negate = -1;
 
@@ -100,6 +109,7 @@
   let manualclicking = true;
   let depthtimebox = false;
   let pricereductionbox = false;
+  let rabbitchancebox = false;
   let sidecounters = false;
   let newthingbool = false;
   let depthbool = false;
@@ -122,9 +132,13 @@
   //Automove
   function autoroll(checkbox) {
     if (checkbox.checked) {
-      rollinterval = setInterval(() => move(document.getElementById('boulder')), rolldelay);
-    } else {
-      clearInterval(rollinterval);
+	  for (let i = 0; i < autocounter; i++) {
+        let intervalID = setInterval(() => move(document.getElementById('boulder')), rolldelay);
+	    rollIntervals.push(intervalID);
+	  }
+	} else {
+      rollIntervals.forEach(clearInterval);
+      rollIntervals = [];
     }
   }
   
@@ -141,7 +155,7 @@
 	} else {
 	  image.setAttribute("style", "transform: translateX(" + movement + "px) translateY(" + verticalposition + "px) rotate(" + rotateAngle + "deg);");
 	  document.getElementById('viewdepth').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 200) + "px);");
-	  document.getElementById('viewkinetic').setAttribute("style", "transform: translateX(" + (movement - 80) + "px) translateY(" + (verticalposition + 200) + "px);");
+	  document.getElementById('viewkinetic').setAttribute("style", "transform: translateX(" + (movement - 130) + "px) translateY(" + (verticalposition + 200) + "px);");
 	  if (sidecounters == false) {
 		document.getElementById('viewdepth').style.visibility = 'visible';
 		document.getElementById('viewkinetic').style.visibility = 'visible';
@@ -150,8 +164,8 @@
 	  }
     }
 	if (funnybox == true) {
-	  document.getElementById('cancelviewbox').setAttribute("style", "transform: translateX(" + (movement - 350) + "px) translateY(" + (verticalposition + 200) + "px);");
-	  document.getElementById('cancelview').setAttribute("style", "transform: translateX(" + (movement - 300) + "px) translateY(" + (verticalposition + 200) + "px);");
+	  document.getElementById('cancelviewbox').setAttribute("style", "transform: translateX(" + (movement - 150) + "px) translateY(" + (verticalposition + 220) + "px);");
+	  document.getElementById('cancelview').setAttribute("style", "transform: translateX(" + (movement - 150) + "px) translateY(" + (verticalposition + 175) + "px);");
 	  document.getElementById('viewdistance').setAttribute("style", "transform: translateX(" + (movement - 80) + "px) translateY(" + (verticalposition + 200) + "px);");
 	  document.getElementById('viewrotation').setAttribute("style", "transform: translateX(" + (movement - 120) + "px) translateY(" + (verticalposition + 200) + "px);");
 	  document.getElementById('viewdistance').innerHTML = movement + "px";
@@ -217,12 +231,19 @@
 	  depthtimebox = true;
 	  newthing();
 	}
+	//Kinetics - Price Reduction
 	if (maxdepth >= 5000 && pricereductionbox == false) {
 	  document.getElementById('spendboxpricereduction').innerHTML = Math.floor((1 - pricereduction) * 100) + "\% Rotation price reduction | " + pricereductionprice + " Kinetics";
 	  document.getElementById('spendpricereduction').style.visibility = 'visible';
 	  pricereductionbox = true;
 	  newthing();
 	}
+	//Rotations - Rabbit Chance
+	if (rabbitsclicked >= 10 && rabbitchancebox == false) {
+	  document.getElementById('spendboxrabbitchance').innerHTML = Math.floor(((1 - rabbitchance) / 3) * 100) + "\% chance of a rabbit appearing | " + rabbitchanceprice + " Rotations";
+	  document.getElementById('spendrabbitchance').style.visibility = 'visible';
+	}
+	
 	if (movement >= 2000) {
 	  trailcounter = trailcounter - 1;
 	  if (trailcounter <= 0) {
@@ -237,10 +258,10 @@
 		  createtrail(document.getElementById('boulder'),"images/flower1.png");
 		} 
 		else if (randomPicture == 1) {
-		  if (Math.random() <= 0.9) {
+		  if (Math.random() <= rabbitchance) {
 		    createtrail(document.getElementById('boulder'),"images/flower2.png");
 		  }
-		  else {
+		  else { //make rabbit clickable potentially
 		    createtrail(document.getElementById('boulder'),"images/rabbit.png");
 		  }
 		} 
@@ -254,14 +275,36 @@
 	}
   }
   
+  function refreshshop () {
+    document.getElementById('spendbox').innerHTML = " +5 movement | " + Math.ceil(rotationprice * pricereduction) + " Rotations";
+	if (depthtimebox == true) {
+	  document.getElementById('spendboxdepthtime').innerHTML = Math.floor(timereduction * 100) + "\% Upward travel time, " + Math.floor((2 - timereduction) * 100) + "\% Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
+	}
+	if (pricereductionbox == true) {
+	  document.getElementById('spendboxpricereduction').innerHTML = Math.floor((1 - pricereduction) * 100) + "\% Rotation price reduction | " + (pricereductionprice * reductioncounter) + " Kinetics";
+	}
+	document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
+	document.getElementById('viewrotation').innerHTML = rotationstored + "R";
+	if (depthbool == true) {
+	  document.getElementById('kineticenergy').innerHTML = "The boulder has " + kineticenergy + " Kinetics stored";
+	}
+	if (depthbool2 == true) {
+	  document.getElementById('viewkinetic').innerHTML = kineticenergy + "K";
+	}
+	if (rabbitchancebox == true) {
+	  document.getElementById('spendboxrabbitchance').innerHTML = Math.floor(((1 - rabbitchance) / 3) * 100) + "\% chance of a rabbit appearing | " + rabbitchanceprice + " Rotations";
+    }
+  }
+  
   function spendrotation() {
     if (rotationstored >= Math.ceil(rotationprice * pricereduction)) {
 	  rotationstored = rotationstored - Math.ceil(rotationprice * pricereduction);
       upgrademovement(5);
 	  rotationprice = rotationprice + Math.ceil(rotationprice / 2);
-	  document.getElementById('spendbox').innerHTML = " +5 movement | " + Math.ceil(rotationprice * pricereduction) + " Rotations";
-	  document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
-	  document.getElementById('viewrotation').innerHTML = rotationstored + "R";
+	  refreshshop();
+	  //document.getElementById('spendbox').innerHTML = " +5 movement | " + Math.ceil(rotationprice * pricereduction) + " Rotations";
+	  //document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
+	  //document.getElementById('viewrotation').innerHTML = rotationstored + "R";
     }
   }
   
@@ -271,9 +314,10 @@
 	    rotationstored = rotationstored - Math.ceil(depthtimeprice * pricereduction);
         timereduction = timereduction - 0.1;
 	    depthtimeprice = depthtimeprice * 10;
-	    document.getElementById('spendboxdepthtime').innerHTML = Math.floor(timereduction * 100) + "\% Upward travel time, " + Math.floor((2 - timereduction) * 100) + "\% Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
-	    document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
-		document.getElementById('viewrotation').innerHTML = rotationstored + "R";
+		refreshshop();
+	    //document.getElementById('spendboxdepthtime').innerHTML = Math.floor(timereduction * 100) + "\% Upward travel time, " + Math.floor((2 - timereduction) * 100) + "\% Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
+	    //document.getElementById('turns').innerHTML = "The boulder has " + rotationstored + " Rotations stored!";
+		//document.getElementById('viewrotation').innerHTML = rotationstored + "R";
      }
 	}
   }
@@ -283,13 +327,33 @@
      pricereduction = pricereduction * 0.98;
      kineticenergy = kineticenergy - (pricereductionprice * reductioncounter);
 	 reductioncounter = reductioncounter + 1;
-     document.getElementById('spendboxpricereduction').innerHTML = Math.floor((1 - pricereduction) * 100) + "\% Rotation price reduction | " + (pricereductionprice * reductioncounter) + " Kinetics";
-	 document.getElementById('spendboxdepthtime').innerHTML = Math.floor(timereduction * 100) + "\% Upward travel time, " + Math.floor((2 - timereduction) * 100) + "\% Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
-	 document.getElementById('spendbox').innerHTML = " +5 movement | " + Math.ceil(rotationprice * pricereduction) + " Rotations";
-	 document.getElementById('kineticenergy').innerHTML = "The boulder has " + kineticenergy + " Kinetics stored";
-	 document.getElementById('viewkinetic').innerHTML = kineticenergy + "K";
+	 refreshshop();
+     //document.getElementById('spendboxpricereduction').innerHTML = Math.floor((1 - pricereduction) * 100) + "\% Rotation price reduction | " + (pricereductionprice * reductioncounter) + " Kinetics";
+	 //document.getElementById('spendboxdepthtime').innerHTML = Math.floor(timereduction * 100) + "\% Upward travel time, " + Math.floor((2 - timereduction) * 100) + "\% Downward travel time | " + Math.ceil(depthtimeprice * pricereduction) + " Rotations";
+	 //document.getElementById('spendbox').innerHTML = " +5 movement | " + Math.ceil(rotationprice * pricereduction) + " Rotations";
+	 //document.getElementById('kineticenergy').innerHTML = "The boulder has " + kineticenergy + " Kinetics stored";
+	 //document.getElementById('viewkinetic').innerHTML = kineticenergy + "K";
     }
   }
+  
+  function spendrabbitchance() {
+    if (rabbitchance >= 0.55) {
+      if (rotationstored >= Math.ceil(rabbitchanceprice * pricereduction)) {
+        rotationstored = rotationstored - (rabbitchanceprice * pricereduction);
+		rabbitchance = rabbitchance - 0.05;
+        refreshshop();
+	  }
+	}
+  }
+  
+  function increaseautoroll () {
+    autocounter = autocounter + 1;
+  }
+  
+  function decreaserolldelay () {
+    rolldelay = rolldelay - 100;
+  }
+  
   //Note, add perk that allows for pricereduction to work on kineticenergy
   //convert potentials into ckinetics
   function createtrail(space,image) {
@@ -297,6 +361,10 @@
 	trail.src = image;
 	trail.style.transform = `translate(${movement}px, ${verticalposition}px)`;
 	document.body.appendChild(trail);
+  }
+  
+  function createclickabletrail() {
+  
   }
   
   function specificobject(image,xpixel,ypixel,width,length) {
